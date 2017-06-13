@@ -110,7 +110,7 @@ function getLogInfo() {
 
 $(document).ready(function() {
     $(".submitToServer").click(function() {
-        alert("hello, ajax")
+        alert("hello, ajax");
         $.ajax({
             type: "POST",
             url: "/save",
@@ -118,15 +118,30 @@ $(document).ready(function() {
             dataType: "json",
             data: JSON.stringify(getMemberInfo()),
             success: function (message) {
-                if (message > 0) {
-                    showRule("success", "提交数据成功！");
-                }
+                showRule("success", "提交数据成功！");
             },
             error: function (message) {
                 showRule("fail", "提交数据失败！");
             }
         });
-        alert("bye, ajax");
-        return false;
+    });
+});
+
+
+$(document).ready(function() {
+    $(":submit").click(function() {
+        if($("#income").attr("class") == "active") {
+            alert("hello, income");
+            $("input:checkbox").each(function() {
+                alert($(this).attr("checked"));
+//                if ($(this).attr("checked") == true) {
+//                    alert("hello, checkbox");
+//                    alert($(this).children("div.1").text());
+//                }
+            });
+        } else {
+
+
+        }
     });
 });

@@ -1,3 +1,4 @@
+# coding:utf-8
 import codecs
 import json
 
@@ -26,9 +27,11 @@ def index():
 def save():
     if request.method == 'POST':
         data = request.get_data()
-        dict1 = json.loads(data)
-        print(dict1)
-        return 'success'
+        member = json.loads(data.decode("utf-8"))
+        print(member)
+        write_file("templates/member.json", member)
+        # 必须再返回一个json对象给浏览器，否则会认为提交失败
+        return data
     else:
         return 'only post'
 
@@ -40,7 +43,12 @@ def read_file(filepath):
         file_object.close()
     return all_the_text
 
-
+def write_file(filepath, content):
+    file_object = codecs.open(filepath, "w", "utf-8")
+    try:
+        file_object.write(content)
+    finally:
+        file_object.close()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.1.2', port=80)
+    app.run(debug=True, port=80)
