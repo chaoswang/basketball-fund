@@ -23,13 +23,25 @@ def index():
         return render_template("index.html", member_size=len(member_list), total_fund=total_fund,
                                sorted_list = sorted_list, log_list = log_list)
 
-@app.route('/save', methods=['GET', 'POST'])
-def save():
+@app.route('/saveMember', methods=['GET', 'POST'])
+def saveMember():
     if request.method == 'POST':
         data = request.get_data()
         member = json.loads(data.decode("utf-8"))
         print(member)
         write_file("templates/member.json", member)
+        # 必须再返回一个json对象给浏览器，否则会认为提交失败
+        return data
+    else:
+        return 'only post'
+
+@app.route('/saveLog', methods=['GET', 'POST'])
+def saveLog():
+    if request.method == 'POST':
+        data = request.get_data()
+        log = json.loads(data.decode("utf-8"))
+        print(log)
+        write_file("templates/log.json", log)
         # 必须再返回一个json对象给浏览器，否则会认为提交失败
         return data
     else:
@@ -51,4 +63,4 @@ def write_file(filepath, content):
         file_object.close()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80)
+    app.run(debug=True, host='192.168.1.2', port=80)

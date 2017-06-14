@@ -59,17 +59,10 @@ function addMember() {
     memberList.insertBefore(placeholder, addMember);
 }
 
-// function submitToServer() {
-//     var memberList = document.getElementsByClassName("checkbox");
-//     var memberInfo = "";
-//     for(var i=0; i<memberList.length; i++){
-//         var labelNode = memberList[i].getElementsByTagName("label")[0];
-//         memberInfo += labelNode.lastChild.nodeValue;
-//     }
-//     alert(memberInfo);
-//     var logList = document.getElementById("logList").innerHTML;
-//     alert(logList);
-// }
+function addLog(logContent) {
+    var txt="<div class=\"logTime\">" + getNowFormatDate() + "</div><div class=\"logContent\">" + logContent + "</div>";
+    $(".logTime:first").before(txt);
+}
 
 function getMemberInfo() {
     var memberList = document.getElementsByClassName("memberName");
@@ -108,12 +101,30 @@ function getLogInfo() {
     return logInfo;
 }
 
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = ":";
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + date.getHours() + seperator2 + date.getMinutes()
+            + seperator2 + date.getSeconds();
+    return currentdate;
+}
+
 $(document).ready(function() {
-    $(".submitToServer").click(function() {
+    $(".submitMemberToServer").click(function() {
         alert("hello, ajax");
         $.ajax({
             type: "POST",
-            url: "/save",
+            url: "/saveMember",
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             data: JSON.stringify(getMemberInfo()),
@@ -127,21 +138,56 @@ $(document).ready(function() {
     });
 });
 
+$(document).ready(function() {
+    $(".submitLogToServer").click(function() {
+        $.ajax({
+            type: "POST",
+            url: "/saveLog",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(getLogInfo()),
+            success: function (message) {
+                showRule("success", "提交数据成功！");
+            },
+            error: function (message) {
+                showRule("fail", "提交数据失败！");
+            }
+        });
+    });
+});
+
 
 $(document).ready(function() {
     $(":submit").click(function() {
-        if($("#income").attr("class") == "active") {
-            alert("hello, income");
-            $("input:checkbox").each(function() {
-                alert($(this).attr("checked"));
-//                if ($(this).attr("checked") == true) {
-//                    alert("hello, checkbox");
-//                    alert($(this).children("div.1").text());
-//                }
-            });
-        } else {
-
-
+        var log = "";
+        var money_add = $(".form-control").val();
+        if(money_add == ""){
+            return false;
         }
+        if($("#income").attr("class") == "active") {
+            $("input:checkbox").each(function() {
+                if ($(this).prop("checked") == true) {
+                    var name = $(this).next().text();
+                    var money_before = $(this).next().next().text();
+                    log += name+"(+"+ money_add +"),";
+                    money_after = parseFloat(money_before) + parseFloat(money_add);
+                    $(this).next().next().text(money_after);
+                }
+            });
+        }else{
+            $("input:checkbox").each(function() {
+                if ($(this).prop("checked") == true) {
+                    var name = $(this).next().text();
+                    var money_before = $(this).next().next().text();
+                    log += name+"(-"+ money_minus +"),";
+                    money_after = parseFloat(money_before) - parseFloat(money_minus);
+                    $(this).next().next().text(money_after);
+                }
+            });
+        }
+        var toLog = log.substr(0,log.length-1);
+        alert(toLog);
+        addLog(toLog);
+        return false;
     });
 });
